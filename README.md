@@ -1,5 +1,8 @@
 # Generador de Contraseñas Seguras
 
+![Captura de pantalla de 2024-10-22 14-22-33](https://github.com/user-attachments/assets/b702e446-feb9-4051-8449-7278d71517cb)
+
+
 ## Descripción
 
 Aplicación en Python que genera contraseñas aleatorias y seguras utilizando `customtkinter` para una interfaz gráfica amigable.
