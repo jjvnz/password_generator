@@ -1,24 +1,73 @@
 import secrets
 import string
 
+class PasswordBuilder:
+    """Builder para la generación de contraseñas seguras."""
+
+    def __init__(self, length: int):
+        if length <= 0:
+            raise ValueError("La longitud de la contraseña debe ser mayor que 0.")
+        self.length = length
+        self.character_set = ""
+        self.forced_chars = []
+
+    def add_lowercase(self):
+        """Agrega caracteres en minúscula al conjunto."""
+        self.character_set += string.ascii_lowercase
+        if len(self.forced_chars) < self.length:
+            self.forced_chars.append(secrets.choice(string.ascii_lowercase))
+        return self
+
+    def add_uppercase(self):
+        """Agrega caracteres en mayúscula al conjunto."""
+        self.character_set += string.ascii_uppercase
+        if len(self.forced_chars) < self.length:
+            self.forced_chars.append(secrets.choice(string.ascii_uppercase))
+        return self
+
+    def add_numbers(self):
+        """Agrega dígitos al conjunto."""
+        self.character_set += string.digits
+        if len(self.forced_chars) < self.length:
+            self.forced_chars.append(secrets.choice(string.digits))
+        return self
+
+    def add_symbols(self):
+        """Agrega símbolos al conjunto."""
+        self.character_set += string.punctuation
+        if len(self.forced_chars) < self.length:
+            self.forced_chars.append(secrets.choice(string.punctuation))
+        return self
+
+    def build(self) -> str:
+        """Genera la contraseña con los caracteres especificados."""
+        if not self.character_set:
+            raise ValueError("Debe seleccionar al menos un tipo de caracteres.")
+        
+        # Truncar forced_chars si excede la longitud
+        password = self.forced_chars[:self.length]  # Asegura que no exceda la longitud especificada
+        if len(password) < self.length:
+            password += [secrets.choice(self.character_set) for _ in range(self.length - len(password))]
+        
+        # Mezclar los caracteres para evitar que los forzados estén siempre al inicio
+        secrets.SystemRandom().shuffle(password)
+        return ''.join(password)
+
 class PasswordGenerator:
-    """Clase para generar contraseñas seguras."""
-    
+    """Generador de contraseñas usando PasswordBuilder."""
+
     @staticmethod
     def generate(length: int, use_symbols: bool, use_numbers: bool,
                  use_uppercase: bool, use_lowercase: bool) -> str:
         """Genera una contraseña segura según los parámetros especificados."""
-        character_set = ""
+        builder = PasswordBuilder(length)
         if use_lowercase:
-            character_set += string.ascii_lowercase
+            builder.add_lowercase()
         if use_uppercase:
-            character_set += string.ascii_uppercase
+            builder.add_uppercase()
         if use_numbers:
-            character_set += string.digits
+            builder.add_numbers()
         if use_symbols:
-            character_set += string.punctuation
-            
-        if not character_set:
-            raise ValueError("Debe seleccionar al menos un tipo de caracteres")
-            
-        return ''.join(secrets.choice(character_set) for _ in range(length))
+            builder.add_symbols()
+
+        return builder.build()
